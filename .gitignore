@@ -1,4 +1,11 @@
-# Sensitive data (localStorage backups, etc.)
+# Node modules
+node_modules/
+package-lock.json
+
+# Data storage (contains user data)
+data/
+
+# Sensitive data
 *.local
 *.backup
 localStorage.json
@@ -22,15 +29,14 @@ Thumbs.db
 # Logs
 *.log
 logs/
+npm-debug.log*
 
 # Environment files
 .env
 .env.local
-
-# Node modules (if you add any build tools later)
-node_modules/
-package-lock.json
+.env.production
 
 # Temporary files
 tmp/
 temp/
+*.tmp
