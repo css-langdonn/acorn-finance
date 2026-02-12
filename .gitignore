@@ -1,0 +1,36 @@
+# Sensitive data (localStorage backups, etc.)
+*.local
+*.backup
+localStorage.json
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+
+# Environment files
+.env
+.env.local
+
+# Node modules (if you add any build tools later)
+node_modules/
+package-lock.json
+
+# Temporary files
+tmp/
+temp/

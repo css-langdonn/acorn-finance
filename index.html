@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockTiming Pro - AI Stock Analysis</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Minimal Navigation -->
+    <nav class="navbar-minimal">
+        <div class="nav-content">
+            <a href="index.html" class="logo-link">StockTiming Pro</a>
+            <div class="nav-right">
+                <span class="user-info" id="userInfo" data-auth="authenticated"></span>
+                <button class="nav-link-btn" id="adminBtn" data-auth="admin">Admin</button>
+                <button class="nav-link-btn" id="signOutBtn" data-auth="authenticated">Sign Out</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-article">
+        <article class="article-container">
+            <!-- Header -->
+            <header class="article-header">
+                <h1 class="article-title">AI-Powered Stock Market Analysis</h1>
+                <p class="article-subtitle">Real-time pattern recognition and trading signals powered by advanced AI algorithms</p>
+                <div class="status-indicator">
+                    <span class="status-dot"></span>
+                    <span>System Active • Monitoring 24/7</span>
+                </div>
+            </header>
+
+            <!-- Stats Section -->
+            <section class="stats-section">
+                <div class="stat-item">
+                    <div class="stat-value" id="activeStocks">0</div>
+                    <div class="stat-label">Stocks Monitored</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="signalsToday">0</div>
+                    <div class="stat-label">Signals Today</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="accuracy">0%</div>
+                    <div class="stat-label">Accuracy Rate</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="lastUpdate">--:--</div>
+                    <div class="stat-label">Last Update</div>
+                </div>
+            </section>
+
+            <!-- Signals Section -->
+            <section class="signals-section">
+                <h2 class="section-heading">Current Trading Signals</h2>
+                <p class="section-description">AI-analyzed recommendations based on technical patterns, RSI, MACD, and market trends</p>
+                
+                <div class="signals-list" id="signalsList">
+                    <!-- Signals will be dynamically generated -->
+                </div>
+            </section>
+
+            <!-- Analysis Section -->
+            <section class="analysis-section">
+                <h2 class="section-heading">Market Analysis</h2>
+                <div class="analysis-grid">
+                    <div class="analysis-card">
+                        <h3>Trend Analysis</h3>
+                        <div class="chart-container" id="trendChart">
+                            <canvas id="trendCanvas"></canvas>
+                        </div>
+                    </div>
+                    <div class="analysis-card">
+                        <h3>Performance Metrics</h3>
+                        <div class="metrics-container" id="metricsContainer"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- History Section -->
+            <section class="history-section">
+                <h2 class="section-heading">Recent Signals</h2>
+                <div class="history-filters">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="buy">Buy</button>
+                    <button class="filter-btn" data-filter="sell">Sell</button>
+                    <button class="filter-btn" data-filter="hold">Hold</button>
+                </div>
+                <div class="history-table-wrapper">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Symbol</th>
+                                <th>Action</th>
+                                <th>Price</th>
+                                <th>Confidence</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                            <!-- History rows will be dynamically generated -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </article>
+    </main>
+
+    <!-- Admin Panel Modal -->
+    <div class="admin-modal" id="adminModal">
+        <div class="admin-container">
+            <div class="admin-header">
+                <h2>Admin Control Panel</h2>
+                <button class="close-btn" id="closeAdmin">&times;</button>
+            </div>
+            <div class="admin-content">
+                <div class="admin-sidebar">
+                    <nav class="admin-menu">
+                        <button class="admin-menu-item active" data-panel="overview">Overview</button>
+                        <button class="admin-menu-item" data-panel="webhooks">Webhooks</button>
+                        <button class="admin-menu-item" data-panel="users">Users</button>
+                        <button class="admin-menu-item" data-panel="api">API Keys</button>
+                        <button class="admin-menu-item" data-panel="system">System</button>
+                        <button class="admin-menu-item" data-panel="settings">Settings</button>
+                    </nav>
+                </div>
+                <div class="admin-main">
+                    <!-- Overview Panel -->
+                    <div class="admin-panel active" id="adminOverview">
+                        <h3>System Overview</h3>
+                        <div class="admin-stats-grid">
+                            <div class="admin-stat-card">
+                                <div class="admin-stat-label">Total Users</div>
+                                <div class="admin-stat-value" id="totalUsers">0</div>
+                            </div>
+                            <div class="admin-stat-card">
+                                <div class="admin-stat-label">Active Sessions</div>
+                                <div class="admin-stat-value" id="activeSessions">0</div>
+                            </div>
+                            <div class="admin-stat-card">
+                                <div class="admin-stat-label">System Uptime</div>
+                                <div class="admin-stat-value" id="systemUptime">0h 0m</div>
+                            </div>
+                            <div class="admin-stat-card">
+                                <div class="admin-stat-label">Webhooks</div>
+                                <div class="admin-stat-value" id="webhookCount">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Webhooks Panel -->
+                    <div class="admin-panel" id="adminWebhooks">
+                        <div class="panel-header">
+                            <h3>Webhook Management</h3>
+                            <button class="btn-primary" id="addWebhookBtn">Add Webhook</button>
+                        </div>
+                        <div class="webhooks-list" id="webhooksList">
+                            <!-- Webhooks will be dynamically generated -->
+                        </div>
+                    </div>
+
+                    <!-- Users Panel -->
+                    <div class="admin-panel" id="adminUsers">
+                        <div class="panel-header">
+                            <h3>User Management</h3>
+                            <button class="btn-primary" id="addUserBtn">Add User</button>
+                        </div>
+                        <div class="admin-table-wrapper">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Username</th>
+                                        <th>Email</th>
+                                        <th>Role</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody">
+                                    <!-- Users will be dynamically generated -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- API Keys Panel -->
+                    <div class="admin-panel" id="adminApi">
+                        <h3>API Configuration</h3>
+                        <div class="form-section">
+                            <div class="form-group">
+                                <label>OpenAI API Key</label>
+                                <input type="password" id="openaiKey" placeholder="sk-...">
+                                <small>Used for AI-powered pattern analysis</small>
+                            </div>
+                            <div class="form-group">
+                                <label>Alpha Vantage API Key</label>
+                                <input type="text" id="alphaVantageKey" placeholder="Get free key from alphavantage.co">
+                                <small>Used for real-time stock data</small>
+                            </div>
+                            <button class="btn-primary" id="saveApiKeys">Save API Keys</button>
+                        </div>
+                    </div>
+
+                    <!-- System Panel -->
+                    <div class="admin-panel" id="adminSystem">
+                        <h3>System Control</h3>
+                        <div class="control-list">
+                            <div class="control-item">
+                                <div>
+                                    <label>Maintenance Mode</label>
+                                    <small>Disable access for all users</small>
+                                </div>
+                                <label class="toggle">
+                                    <input type="checkbox" id="maintenanceMode">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="control-item">
+                                <div>
+                                    <label>Lockdown Mode</label>
+                                    <small>Emergency system lockdown</small>
+                                </div>
+                                <label class="toggle">
+                                    <input type="checkbox" id="lockdownMode">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="control-item">
+                                <div>
+                                    <label>Auto Updates</label>
+                                    <small>Automatically update stock data</small>
+                                </div>
+                                <label class="toggle">
+                                    <input type="checkbox" id="autoUpdates" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Settings Panel -->
+                    <div class="admin-panel" id="adminSettings">
+                        <h3>Settings</h3>
+                        <div class="form-section">
+                            <div class="form-group">
+                                <label>Update Interval (seconds)</label>
+                                <input type="number" id="updateInterval" value="60" min="10" max="300">
+                            </div>
+                            <div class="form-group">
+                                <label>Minimum Confidence for Webhooks</label>
+                                <input type="number" id="minConfidence" value="70" min="0" max="100">
+                            </div>
+                            <button class="btn-primary" id="saveSettings">Save Settings</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Maintenance Overlay -->
+    <div class="overlay" id="maintenanceOverlay">
+        <div class="overlay-content">
+            <h2>System Maintenance</h2>
+            <p>We're performing scheduled maintenance. Please check back soon.</p>
+        </div>
+    </div>
+
+    <!-- Lockdown Overlay -->
+    <div class="overlay" id="lockdownOverlay">
+        <div class="overlay-content">
+            <h2>System Lockdown</h2>
+            <p>Access is currently restricted. Please contact an administrator.</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="config.js"></script>
+    <script src="utils.js"></script>
+    <script src="auth.js"></script>
+    <script src="api.js"></script>
+    <script src="webhook.js"></script>
+    <script src="admin.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
+
