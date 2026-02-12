@@ -51,7 +51,24 @@ const Admin = {
                 }
 
                 // Update panel-specific data
-                if (panel === 'webhooks') this.updateWebhooksList();
+                if (panel === 'webhooks') {
+                    this.updateWebhooksList();
+                    // Re-initialize webhook event listeners
+                    setTimeout(() => {
+                        const webhooksList = document.getElementById('webhooksList');
+                        if (webhooksList) {
+                            webhooksList.addEventListener('click', (e) => {
+                                const button = e.target.closest('[data-action]');
+                                if (!button) return;
+                                const webhookId = button.getAttribute('data-webhook-id');
+                                const action = button.getAttribute('data-action');
+                                if (action === 'test') this.testWebhook(webhookId, e);
+                                else if (action === 'edit') this.editWebhook(webhookId);
+                                else if (action === 'delete') this.deleteWebhook(webhookId);
+                            });
+                        }
+                    }, 100);
+                }
                 if (panel === 'users') this.updateUsersTable();
             });
         });
@@ -80,18 +97,60 @@ const Admin = {
 
     // Webhook management
     initWebhooks() {
+        // Ensure WebhookManager is initialized
+        if (!WebhookManager.webhooks || WebhookManager.webhooks.length === 0) {
+            WebhookManager.init();
+        }
+
         this.updateWebhooksList();
 
         document.getElementById('addWebhookBtn')?.addEventListener('click', () => {
             this.showAddWebhookModal();
         });
+
+        // Use event delegation for webhook actions
+        const webhooksList = document.getElementById('webhooksList');
+        if (webhooksList) {
+            // Remove existing listeners to avoid duplicates
+            const newWebhooksList = webhooksList.cloneNode(true);
+            webhooksList.parentNode.replaceChild(newWebhooksList, webhooksList);
+            
+            newWebhooksList.addEventListener('click', (e) => {
+                const button = e.target.closest('[data-action]');
+                if (!button) return;
+
+                const webhookId = button.getAttribute('data-webhook-id');
+                const action = button.getAttribute('data-action');
+
+                if (action === 'test') {
+                    this.testWebhook(webhookId, e);
+                } else if (action === 'edit') {
+                    this.editWebhook(webhookId);
+                } else if (action === 'delete') {
+                    this.deleteWebhook(webhookId);
+                }
+            });
+        }
     },
 
     updateWebhooksList() {
         const list = document.getElementById('webhooksList');
-        if (!list) return;
+        if (!list) {
+            console.warn('webhooksList element not found');
+            return;
+        }
+
+        // Ensure WebhookManager is initialized
+        if (!WebhookManager.webhooks || WebhookManager.webhooks.length === 0) {
+            WebhookManager.init();
+        }
 
         list.innerHTML = '';
+
+        if (WebhookManager.webhooks.length === 0) {
+            list.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--text-muted);">No webhooks configured. Click "Add Webhook" to add one.</div>';
+            return;
+        }
 
         WebhookManager.webhooks.forEach(webhook => {
             const item = document.createElement('div');
@@ -105,9 +164,9 @@ const Admin = {
                         </div>
                     </div>
                     <div class="webhook-actions">
-                        <button class="btn-secondary" onclick="Admin.testWebhook('${webhook.id}')">Test</button>
-                        <button class="btn-secondary" onclick="Admin.editWebhook('${webhook.id}')">Edit</button>
-                        <button class="btn-danger" onclick="Admin.deleteWebhook('${webhook.id}')">Delete</button>
+                        <button class="btn-secondary" data-webhook-id="${webhook.id}" data-action="test">Test</button>
+                        <button class="btn-secondary" data-webhook-id="${webhook.id}" data-action="edit">Edit</button>
+                        <button class="btn-danger" data-webhook-id="${webhook.id}" data-action="delete">Delete</button>
                     </div>
                 </div>
                 <div style="display: flex; gap: 1rem; font-size: 0.875rem; color: var(--text-secondary);">
@@ -166,12 +225,30 @@ const Admin = {
         }
     },
 
-    async testWebhook(id) {
+    async testWebhook(id, event) {
+        const button = event?.target || document.querySelector(`[data-webhook-id="${id}"][data-action="test"]`);
+        const originalText = button?.textContent || 'Test';
+        
+        if (button) {
+            button.disabled = true;
+            button.textContent = 'Testing...';
+        }
+
         try {
-            await WebhookManager.testWebhook(id);
-            alert('Webhook test successful!');
+            const result = await WebhookManager.testWebhook(id);
+            if (result) {
+                alert('✅ Webhook test successful! Check your Discord channel.');
+            } else {
+                alert('⚠️ Webhook test completed but may have failed. Check your Discord channel.');
+            }
         } catch (error) {
-            alert(`Webhook test failed: ${error.message}`);
+            console.error('Webhook test error:', error);
+            alert(`❌ Webhook test failed: ${error.message}\n\nCheck:\n1. Webhook URL is correct\n2. Webhook is not expired\n3. Browser console for details`);
+        } finally {
+            if (button) {
+                button.disabled = false;
+                button.textContent = originalText;
+            }
         }
     },
 

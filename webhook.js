@@ -89,11 +89,19 @@ const WebhookManager = {
     // Send to individual webhook
     async sendToWebhook(webhook, signal) {
         try {
+            if (!webhook || !webhook.url) {
+                throw new Error('Invalid webhook configuration');
+            }
+
+            if (!signal) {
+                throw new Error('Invalid signal data');
+            }
+
             const embed = {
                 title: `📈 ${signal.symbol} - ${signal.action.toUpperCase()} Signal`,
                 description: `**Confidence:** ${signal.confidence}%\n**Price:** ${Utils.formatCurrency(signal.price)}\n**Change:** ${Utils.formatPercent(signal.changePercent)}\n\n**Analysis:** ${signal.reasoning}`,
                 color: signal.action === 'buy' ? 0x10b981 : signal.action === 'sell' ? 0xef4444 : 0xf59e0b,
-                timestamp: signal.timestamp.toISOString(),
+                timestamp: signal.timestamp ? signal.timestamp.toISOString() : new Date().toISOString(),
                 footer: {
                     text: 'StockTiming Pro - AI-Powered Analysis'
                 },
@@ -122,6 +130,9 @@ const WebhookManager = {
                 avatar_url: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'
             };
 
+            console.log('Sending webhook to:', webhook.url);
+            console.log('Payload:', JSON.stringify(payload, null, 2));
+
             const response = await fetch(webhook.url, {
                 method: 'POST',
                 headers: {
@@ -130,8 +141,12 @@ const WebhookManager = {
                 body: JSON.stringify(payload)
             });
 
+            const responseText = await response.text();
+            console.log('Webhook response status:', response.status);
+            console.log('Webhook response:', responseText);
+
             if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
+                throw new Error(`HTTP ${response.status}: ${responseText.substring(0, 100)}`);
             }
 
             return true;
